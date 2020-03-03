@@ -1,83 +1,45 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import './App.css';
-import './Person/Person.css'
-import Person from './Person/Person';
+import './Char/Char.css';
+import LengthValidator from './LengthValidator/LengthValidator';
+import Char from './Char/Char';
 
-class App extends Component {
-  state = {
-    persons: [
-      { id: 'qwer', name: 'Liz', age: 7 },
-      { id: 'tyui', name: 'Natalie', age: 29 },
-      { id: 'opas', name: 'Sinny', age: 21 }
-    ],
-    showPersons: true
-  }
+const app = props => {
 
-  togglePersonsHandler = () => {
-    this.setState({
-      showPersons: !this.state.showPersons
-    })
-  }
+  const [sentenceState, setSentenceState] = useState({
+    sentence: 'hello world',
+    length: 0
+  })
 
-  deletePersonHandler = (personIndex) => {
-    const newPersons = [...this.state.persons];
-    newPersons.splice(personIndex, 1);
-
-    this.setState({
-      persons: newPersons
-    })
-  }
-
-  nameChangeHander = (event, personId) => {
-    const newPersons = [...this.state.persons].map((person) => {
-      if(person.id === personId) { person.name = event.target.value }
-      return person
+  const inputHandler = event => {
+    setSentenceState({
+      sentence: event.target.value,
+      length: event.target.value.length
     });
-
-    this.setState({
-      persons: newPersons
-    })
   }
 
-  render() {
-    const style = {
-      backgroundColor: 'white',
-      font: 'inherit',
-      border: '1px solid blue',
-      padding: '8px',
-      cursor: 'pointer'
-    };
-
-    let persons = null;
-
-    if(this.state.showPersons) {
-      persons = (
-        <div>
-          {
-            this.state.persons.map((person, index) => {
-              return <Person
-              name={person.name}
-              age={person.age}
-              click={() => {this.deletePersonHandler(index)}}
-              key={person.id}
-              changed={(event) => {this.nameChangeHander(event, person.id)}}
-              ></Person>
-            })
-          }
-        </div>
-      );
-    }
-
-    return (
-      <div className="App">
-        <h1>Hi I'm a React App</h1>
-        <button
-        style={style}
-        onClick={this.togglePersonsHandler} >Switch</button>
-        {persons}
-      </div>
-    );
+  const deleteInputHandler = (event, index) => {
+    const newSentence = sentenceState.sentence.split('').filter((char,i) => i !== index).join('');
+    setSentenceState({...sentenceState, sentence: newSentence});
   }
+
+  const chars = sentenceState.sentence.split('').map((char, index) => {
+    return <Char
+      letter={char}
+      key={Math.random()}
+      del={(event, i) => { deleteInputHandler(event, index) }}
+    ></Char>
+  });
+
+
+  return (
+    <div className="App">
+      <input onChange={(event) => { inputHandler(event) }} value={sentenceState.sentence}></input>
+      <p>{sentenceState.length}</p>
+      <LengthValidator length={sentenceState.length}></LengthValidator>
+      {chars}
+    </div>
+  );
 }
 
-export default App;
+export default app;
